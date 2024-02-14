@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity >=0.4.16 <0.9.0;
 import "./StringComparer.sol";
 
@@ -13,6 +14,10 @@ contract HasName {
 
     constructor(string memory name) {
         _name = name;
+    }
+
+    function getName() public view returns (string memory) {
+        return _name;
     }
 }
 
@@ -33,13 +38,13 @@ abstract contract Animal is Living {
 abstract contract Herbivore is Animal, HasName {
     string constant PLANT = "plant";
 
-    modifier eatOnlyPlant(string memory food){
-        require(StringComparer.compare(food, PLANT), "Can only eat plant");
-        _;
-    }
+    function eat(string memory food) pure virtual override public returns (string memory) {
 
-    function eat(string memory food) pure virtual override public eatOnlyPlant(food) returns (string memory) {
-        return super.eat(food);
+        if (StringComparer.compare(food, PLANT)) {
+            return super.eat(food);
+        } else {
+            return "Can only eat plant";
+        }
     }
 }
 
@@ -55,7 +60,7 @@ contract Cow is Herbivore {
 contract Horse is Herbivore {
     constructor(string memory name) HasName(name) {
     }
-
+ 
     function speak() pure override  public returns (string memory) {
         return "Igogo";
     }
@@ -88,13 +93,12 @@ abstract contract MeatAndPlantEaters is Animal, HasName {
     string constant MEAT = "meat";
     string constant PLANT = "plant";
 
-    modifier eatOnlyMeatOrPlant(string memory food){
-        require(StringComparer.compare(food, MEAT) || StringComparer.compare(food, PLANT), "Can only eat meat or plant");
-        _;
-    }
-
-    function eat(string memory food) pure virtual override public eatOnlyMeatOrPlant(food) returns (string memory) {
-        return super.eat(food);
+    function eat(string memory food) pure override public returns (string memory) {
+        if (StringComparer.compare(food, MEAT) || StringComparer.compare(food, PLANT)) {
+            return super.eat(food);
+        } else {
+            return "Can only eat meat or plant";
+        }
     }
 }
 
@@ -110,6 +114,7 @@ contract Wolf is MeatEaters{
 contract Dog is MeatAndPlantEaters{
     constructor(string memory name) HasName(name) {
     }
+    
 
     function speak() pure override public returns (string memory) {
         return "Woof";
